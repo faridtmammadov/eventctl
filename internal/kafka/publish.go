@@ -7,7 +7,16 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func PublishMessage(ctx context.Context, client *Client, topic, key, value string) error {
+func PublishMessage(ctx context.Context, brokers []string, topic, key, value string) error {
+	client, err := kgo.NewClient(
+		kgo.SeedBrokers(brokers...),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	defer client.Close()
+
 	var recordKey []byte
 	if key != "" {
 		recordKey = []byte(key)
@@ -19,7 +28,7 @@ func PublishMessage(ctx context.Context, client *Client, topic, key, value strin
 		Value: []byte(value),
 	}
 
-	if err := client.Kafka.ProduceSync(ctx, record).FirstErr(); err != nil {
+	if err := client.ProduceSync(ctx, record).FirstErr(); err != nil {
 		return fmt.Errorf("publish: failed to produce record: %w", err)
 	}
 

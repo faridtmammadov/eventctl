@@ -28,10 +28,7 @@ var peekCmd = &cobra.Command{
 			return fmt.Errorf("build connection config: %w", err)
 		}
 
-		client := kafka.NewClient(conn.Brokers...)
-		defer client.Close()
-
-		return kafka.PeekMessages(ctx, client, topic, num)
+		return kafka.PeekMessages(ctx, conn.Brokers, topic, num)
 	},
 }
 

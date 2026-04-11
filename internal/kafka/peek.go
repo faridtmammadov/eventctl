@@ -5,11 +5,20 @@ import (
 	"fmt"
 
 	"github.com/twmb/franz-go/pkg/kadm"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func PeekMessages(ctx context.Context, client *Client, topic string, n int) error {
+func PeekMessages(ctx context.Context, brokers []string, topic string, n int) error {
+	client, err := kgo.NewClient(
+		kgo.SeedBrokers(brokers...),
+	)
+	if err != nil {
+		panic(err)
+	}
 
-	adm := kadm.NewClient(client.Kafka)
+	defer client.Close()
+
+	adm := kadm.NewClient(client)
 	listed, err := adm.ListEndOffsets(ctx, topic)
 	if err != nil {
 		return fmt.Errorf("peek: failed to list end offsets: %w", err)
@@ -27,12 +36,12 @@ func PeekMessages(ctx context.Context, client *Client, topic string, n int) erro
 		return nil
 	}
 
-	client.Kafka.AddConsumeTopics(topic)
+	client.AddConsumeTopics(topic)
 
 	count := 0
 
 	for count < n && len(pending) > 0 {
-		fetches := client.Kafka.PollFetches(ctx)
+		fetches := client.PollFetches(ctx)
 
 		if err := fetches.Err(); err != nil {
 			return fmt.Errorf("peek: fetch error: %w", err)

@@ -29,10 +29,7 @@ var topicCreateCmd = &cobra.Command{
 			return err
 		}
 
-		client := kafka.NewClient(conn.Brokers...)
-		defer client.Close()
-
-		return kafka.CreateTopic(ctx, client, name, topicPartitions, topicReplicationFactor)
+		return kafka.CreateTopic(ctx, conn.Brokers, name, topicPartitions, topicReplicationFactor)
 	},
 }
 
