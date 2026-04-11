@@ -48,10 +48,7 @@ Examples:
 			return err
 		}
 
-		client := kafka.NewClient(conn.Brokers...)
-		defer client.Close()
-
-		return kafka.PublishMessage(ctx, client, topic, publishKey, value)
+		return kafka.PublishMessage(ctx, conn.Brokers, topic, publishKey, value)
 	},
 }
 

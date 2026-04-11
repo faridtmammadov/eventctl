@@ -62,7 +62,7 @@ func ResolveConnection(cfg *Config, name string) (*ConnectionConfig, error) {
 		if cfg.Default == "" {
 			return nil, errors.New(
 				"config: no connection specified and no default connection defined; " +
-					"use --connection or set 'default' in ~/.event-replay/config.yaml",
+					"use --connection or set 'default' in ~/.eventctl/config.yaml",
 			)
 		}
 		name = cfg.Default

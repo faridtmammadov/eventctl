@@ -5,10 +5,20 @@ import (
 	"fmt"
 
 	"github.com/twmb/franz-go/pkg/kadm"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func CreateTopic(ctx context.Context, client *Client, name string, partitions int32, replicationFactor int16) error {
-	adm := kadm.NewClient(client.Kafka)
+func CreateTopic(ctx context.Context, brokers []string, name string, partitions int32, replicationFactor int16) error {
+	client, err := kgo.NewClient(
+		kgo.SeedBrokers(brokers...),
+	)
+	if err != nil {
+		return fmt.Errorf("topic create: failed to create client: %w", err)
+	}
+
+	defer client.Close()
+
+	adm := kadm.NewClient(client)
 
 	resp, err := adm.CreateTopics(ctx, partitions, replicationFactor, nil, name)
 	if err != nil {

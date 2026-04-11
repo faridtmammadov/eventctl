@@ -5,14 +5,23 @@ import (
 	"fmt"
 
 	"github.com/twmb/franz-go/pkg/kadm"
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func PeekMessages(ctx context.Context, client *Client, topic string, n int) error {
+func Tail(ctx context.Context, brokers []string, topic string, n int) error {
+	client, err := kgo.NewClient(
+		kgo.SeedBrokers(brokers...),
+	)
+	if err != nil {
+		return fmt.Errorf("tail: failed to create client: %w", err)
+	}
 
-	adm := kadm.NewClient(client.Kafka)
+	defer client.Close()
+
+	adm := kadm.NewClient(client)
 	listed, err := adm.ListEndOffsets(ctx, topic)
 	if err != nil {
-		return fmt.Errorf("peek: failed to list end offsets: %w", err)
+		return fmt.Errorf("tail: failed to list end offsets: %w", err)
 	}
 
 	pending := make(map[int32]int64)
@@ -27,15 +36,15 @@ func PeekMessages(ctx context.Context, client *Client, topic string, n int) erro
 		return nil
 	}
 
-	client.Kafka.AddConsumeTopics(topic)
+	client.AddConsumeTopics(topic)
 
 	count := 0
 
 	for count < n && len(pending) > 0 {
-		fetches := client.Kafka.PollFetches(ctx)
+		fetches := client.PollFetches(ctx)
 
 		if err := fetches.Err(); err != nil {
-			return fmt.Errorf("peek: fetch error: %w", err)
+			return fmt.Errorf("tail: fetch error: %w", err)
 		}
 
 		if fetches.NumRecords() == 0 {

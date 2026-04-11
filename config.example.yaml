@@ -1,0 +1,24 @@
+# ~/.eventctl/config.yaml
+#
+# Define named broker connections here so you don't need to pass --broker on
+# every command.  Copy this file to ~/.eventctl/config.yaml and edit to
+# match your environment.
+
+connections:
+
+  local-kafka:
+    brokers:
+      - localhost:9092
+
+  staging-kafka:
+    brokers:
+      - kafka1.staging.example.com:9092
+      - kafka2.staging.example.com:9092
+
+  prod-kafka:
+    brokers:
+      - kafka1.prod.example.com:9092
+      - kafka2.prod.example.com:9092
+      - kafka3.prod.example.com:9092
+
+default: local-kafka

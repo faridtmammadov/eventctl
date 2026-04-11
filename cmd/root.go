@@ -17,8 +17,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "eventctl",
-	Short: "Event debugging CLI",
+	Use:          "eventctl",
+	Short:        "Event debugging CLI",
+	SilenceErrors: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
