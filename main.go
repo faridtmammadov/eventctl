@@ -1,7 +1,16 @@
 package main
 
-import "github.com/faridtmammadov/eventctl/cmd"
+import (
+	"context"
+	"os"
+	"os/signal"
+
+	"github.com/faridtmammadov/eventctl/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	cmd.ExecuteContext(ctx)
 }
