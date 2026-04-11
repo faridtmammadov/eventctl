@@ -8,13 +8,17 @@ type Client struct {
 	Kafka *kgo.Client
 }
 
-func NewClient(brokers string) *Client {
+func NewClient(brokers ...string) *Client {
 	cl, err := kgo.NewClient(
-		kgo.SeedBrokers(brokers),
+		kgo.SeedBrokers(brokers...),
 	)
 	if err != nil {
 		panic(err)
 	}
 
 	return &Client{Kafka: cl}
+}
+
+func (c *Client) Close() {
+	c.Kafka.Close()
 }
