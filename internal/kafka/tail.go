@@ -8,12 +8,12 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func PeekMessages(ctx context.Context, brokers []string, topic string, n int) error {
+func Tail(ctx context.Context, brokers []string, topic string, n int) error {
 	client, err := kgo.NewClient(
 		kgo.SeedBrokers(brokers...),
 	)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("tail: failed to create client: %w", err)
 	}
 
 	defer client.Close()
@@ -21,7 +21,7 @@ func PeekMessages(ctx context.Context, brokers []string, topic string, n int) er
 	adm := kadm.NewClient(client)
 	listed, err := adm.ListEndOffsets(ctx, topic)
 	if err != nil {
-		return fmt.Errorf("peek: failed to list end offsets: %w", err)
+		return fmt.Errorf("tail: failed to list end offsets: %w", err)
 	}
 
 	pending := make(map[int32]int64)
@@ -44,7 +44,7 @@ func PeekMessages(ctx context.Context, brokers []string, topic string, n int) er
 		fetches := client.PollFetches(ctx)
 
 		if err := fetches.Err(); err != nil {
-			return fmt.Errorf("peek: fetch error: %w", err)
+			return fmt.Errorf("tail: fetch error: %w", err)
 		}
 
 		if fetches.NumRecords() == 0 {

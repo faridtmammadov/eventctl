@@ -13,7 +13,7 @@ func CreateTopic(ctx context.Context, brokers []string, name string, partitions 
 		kgo.SeedBrokers(brokers...),
 	)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("topic create: failed to create client: %w", err)
 	}
 
 	defer client.Close()

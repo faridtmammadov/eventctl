@@ -12,7 +12,7 @@ func PublishMessage(ctx context.Context, brokers []string, topic, key, value str
 		kgo.SeedBrokers(brokers...),
 	)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("publish: failed to create client: %w", err)
 	}
 
 	defer client.Close()
